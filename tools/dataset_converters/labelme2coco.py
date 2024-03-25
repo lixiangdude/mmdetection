@@ -41,18 +41,34 @@ for val_anno in val_annos:
     shutil.copyfile(os.path.join(anno_dir, val_anno), os.path.join(anno_val_dir, val_anno))
 
 
-def convert_to_coco(label_file='/home/lixiang/下载/Omnidirectional Street-view Dataset/DriscollHealy/Annotations/000001.xml'):
-    label_json = json.loads(label_file)
+def convert_to_coco(img_id_dict, label_file):
+    with open(label_file, 'r') as f:
+        label_json = json.load(f)
+    annotations = []
     for shape in label_json['shapes']:
+        width = abs(round(shape['points'][1][0], 0) - round(shape['points'][0][0], 0))
+        height = abs(round(shape['points'][1][1], 0) - round(shape['points'][0][1], 0))
+        anno = {
+            'iscrowd': 0,
+            'category_id': categories_dict[shape['label']],
+            'bbox': [round(shape['points'][0][0], 0),
+                     round(shape['points'][0][1], 0),
+                     width,
+                     height],
+            'area': width * height,
+            'segmentation': [[]],
+            'image_id': img_id_dict[label_file.split('/')[-1].split('.')[0]]
+        }
+        annotations.append(anno)
+    return annotations
 
 
-
-def get_categories(xml):
-    tree = ET.parse(xml)
-    root = tree.getroot()
+def get_categories(label_file):
+    with open(label_file, 'r') as f:
+        label_json = json.load(f)
     ctgry_names = set()
-    for obj in root.iter('object'):
-        ctgry_name = obj.find('name').text
+    for shape in label_json['shapes']:
+        ctgry_name = shape['label']
         ctgry_names.add(ctgry_name)
     return ctgry_names
 
@@ -60,6 +76,8 @@ def get_categories(xml):
 def convert_anno_file(image_files_dir, anno_files_dir, output):
     images = []
     image_names = sorted(os.listdir(image_files_dir))
+    image_id = 0
+    img_id_dict = {}
     for img_name in image_names:
         img_path = os.path.join(image_files_dir, img_name)
         img = Image.open(img_path)
@@ -67,9 +85,11 @@ def convert_anno_file(image_files_dir, anno_files_dir, output):
             'height': img.height,
             'width': img.width,
             'file_name': img_name,
-            'id': int(img_name.replace('.jpg', ''))
+            'id': image_id
         }
         images.append(image)
+        img_id_dict[img_name.split('.')[0]] = image_id
+        image_id += 1
     categories = []
     for name, ctgry_id in categories_dict.items():
         categories.append({'id': ctgry_id, 'name': name})
@@ -77,7 +97,7 @@ def convert_anno_file(image_files_dir, anno_files_dir, output):
     annotations = []
     for anno_xml in anno_names:
         xml_path = os.path.join(anno_files_dir, anno_xml)
-        annotations += convert_to_coco(xml_path)
+        annotations += convert_to_coco(img_id_dict, xml_path)
     for idx, annotation in enumerate(annotations):
         annotation['id'] = idx
     result = {
