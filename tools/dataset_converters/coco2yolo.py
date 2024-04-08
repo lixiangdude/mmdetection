@@ -9,7 +9,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 split = 'val'
-data_path = '/home/lixiang/PycharmProjects/mmdetection/data/Omnidirectional Street-view Dataset/equirectangular'
+data_path = '/home/lixiang/下载/路灯/data/'
 #这里根据自己的json文件位置，换成自己的就行
 parser.add_argument('--json_path', default=f'{data_path}/annotations/annotations_{split}.json',type=str, help="input: coco format(json)")
 #这里设置.txt文件保存位置
@@ -46,7 +46,7 @@ if __name__ == '__main__':
             id_map[category['id']] = i
     print(id_map)
     #这里需要根据自己的需要，更改写入图像相对路径的文件位置。
-    list_file = open(os.path.join(ana_txt_save_path, f'{split}2017.txt'), 'w')
+    list_file = open(os.path.join(ana_txt_save_path, f'{split}.txt'), 'w')
     for img in tqdm(data['images']):
         filename = img["file_name"]
         img_width = img["width"]
@@ -61,5 +61,5 @@ if __name__ == '__main__':
                 f_txt.write("%s %s %s %s %s\n" % (id_map[ann["category_id"]], box[0], box[1], box[2], box[3]))
         f_txt.close()
         #将图片的相对路径写入train2017或val2017的路径
-        list_file.write(f'{data_path}/images/{split}/%s.jpg\n' %(head))
+        list_file.write(f'{data_path}/images/{split}/{head}.jpg\n')
     list_file.close()

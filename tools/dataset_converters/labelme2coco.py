@@ -5,15 +5,15 @@ import xml.etree.ElementTree as ET
 from PIL import Image
 from sklearn.model_selection import train_test_split
 
-categories_dict = {'汽车': 1, '交通标志': 4, '路灯': 3, '广告牌': 2}
+categories_dict = {'Street lamp': 1, 'Multi functional comprehensive pole': 4, 'Transportation facility poles': 3, 'Utility pole': 2, 'Landscape light': 5}
 
-data_root = '/home/lixiang/PycharmProjects/mmdetection/data/tsingyan/'
+data_root = '/home/lixiang/下载/路灯/data/'
 img_dir = data_root
 anno_dir = data_root
 
-img_file_names = [img for img in sorted(os.listdir(img_dir)) if img.endswith('.png')]
+img_file_names = [img for img in sorted(os.listdir(img_dir)) if img.endswith('.jpg')]
 anno_file_names = [anno for anno in sorted(os.listdir(anno_dir)) if anno.endswith('.json')]
-train_imgs, val_imgs, train_annos, val_annos = train_test_split(img_file_names, anno_file_names, test_size=0.5,
+train_imgs, val_imgs, train_annos, val_annos = train_test_split(img_file_names, anno_file_names, test_size=0.2,
                                                                 random_state=8)
 
 img_train_dir = os.path.join('%simages' % data_root, 'train')
