@@ -5,20 +5,25 @@ import xml.etree.ElementTree as ET
 from PIL import Image
 from sklearn.model_selection import train_test_split
 
-categories_dict = {'Street lamp': 1, 'Multi functional comprehensive pole': 4, 'Transportation facility poles': 3, 'Utility pole': 2, 'Landscape light': 5}
+categories_dict = {'破损': 1, '凹陷': 1, '衣物': 2, '鞋': 2, '垃圾满冒': 3, '乱扔垃圾': 4, '垃圾正常盛放': 5}
 
-data_root = '/home/lixiang/下载/路灯/data/'
+real_ctgry_dict = {1: 'pavement damage', 2: 'drying along the street', 3: 'trash overflow', 4: 'litter', 5: 'normal trash holding'}
+# real_ctgry_dict = {1: 'broken located on the sidewalk', 2: 'clothes drying on the street', 3: 'trash overflowing out of the garbage cans', 4: 'the garbage that gets thrown around', 5: 'garbage normally placed in garbage cans'}
+
+data_root = '/home/lixiang/下载/西城指标/人行道路面破损-labelme/'
+result_root = '/home/lixiang/下载/西城指标/人行道路面破损-coco/'
 img_dir = data_root
 anno_dir = data_root
 
-img_file_names = [img for img in sorted(os.listdir(img_dir)) if img.endswith('.jpg')]
 anno_file_names = [anno for anno in sorted(os.listdir(anno_dir)) if anno.endswith('.json')]
+file_prefixs = [anno.split('.')[0] for anno in anno_file_names]
+img_file_names = [img for img in sorted(os.listdir(img_dir)) if (img.endswith('.jpg') or img.endswith('jpeg')) and img.split('.')[0] in file_prefixs]
 train_imgs, val_imgs, train_annos, val_annos = train_test_split(img_file_names, anno_file_names, test_size=0.2,
                                                                 random_state=8)
 
-img_train_dir = os.path.join('%simages' % data_root, 'train')
-img_val_dir = os.path.join('%simages' % data_root, 'val')
-anno_result_dir = '%sannotations' % data_root
+img_train_dir = os.path.join('%simages' % result_root, 'train')
+img_val_dir = os.path.join('%simages' % result_root, 'val')
+anno_result_dir = '%sannotations' % result_root
 anno_train_dir = os.path.join(anno_result_dir, 'train')
 anno_val_dir = os.path.join(anno_result_dir, 'val')
 
@@ -91,7 +96,7 @@ def convert_anno_file(image_files_dir, anno_files_dir, output):
         img_id_dict[img_name.split('.')[0]] = image_id
         image_id += 1
     categories = []
-    for name, ctgry_id in categories_dict.items():
+    for ctgry_id, name in real_ctgry_dict.items():
         categories.append({'id': ctgry_id, 'name': name})
     anno_names = sorted(os.listdir(anno_files_dir))
     annotations = []

@@ -8,8 +8,8 @@ from tqdm import tqdm
 import argparse
 
 parser = argparse.ArgumentParser()
-split = 'val'
-data_path = '/home/lixiang/下载/路灯/data/'
+split = 'train'
+data_path = '/home/lixiang/下载/西城指标/人行道路面破损-coco/'
 #这里根据自己的json文件位置，换成自己的就行
 parser.add_argument('--json_path', default=f'{data_path}/annotations/annotations_{split}.json',type=str, help="input: coco format(json)")
 #这里设置.txt文件保存位置
