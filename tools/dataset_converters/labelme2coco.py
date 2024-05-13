@@ -10,8 +10,8 @@ categories_dict = {'破损': 1, '凹陷': 1, '衣物': 2, '鞋': 2, '垃圾满�
 real_ctgry_dict = {1: 'pavement damage', 2: 'drying along the street', 3: 'trash overflow', 4: 'litter', 5: 'normal trash holding'}
 # real_ctgry_dict = {1: 'broken located on the sidewalk', 2: 'clothes drying on the street', 3: 'trash overflowing out of the garbage cans', 4: 'the garbage that gets thrown around', 5: 'garbage normally placed in garbage cans'}
 
-data_root = '/home/lixiang/下载/西城指标/人行道路面破损-labelme/'
-result_root = '/home/lixiang/下载/西城指标/人行道路面破损-coco/'
+data_root = '/home/lixiang/下载/西城指标/西城指标标注'
+result_root = '/home/lixiang/下载/复现模型-0509/data/'
 img_dir = data_root
 anno_dir = data_root
 
