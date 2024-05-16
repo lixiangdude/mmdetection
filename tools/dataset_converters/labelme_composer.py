@@ -2,8 +2,8 @@ import json
 import os
 import shutil
 
-root_dir = '/home/lixiang/下载/数据标注-兼职'
-result_dir = os.path.join('/home/lixiang/下载/西城指标/西城指标标注')
+root_dir = '/home/lixiang/下载/数据标注-兼职/美丽海淀'
+result_dir = os.path.join('/home/lixiang/下载/数据标注-兼职/模型训练/标注')
 
 if not os.path.exists(result_dir):
     os.makedirs(result_dir, exist_ok=True)
