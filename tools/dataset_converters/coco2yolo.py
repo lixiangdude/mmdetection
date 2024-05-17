@@ -31,7 +31,7 @@ def convert(size, box):
     return (x, y, w, h)
 
 if __name__ == '__main__':
-    json_file =   arg.json_path # COCO Object Instance 类型的标注
+    json_file = arg.json_path # COCO Object Instance 类型的标注
     ana_txt_save_path = arg.save_path  # 保存的路径
 
     data = json.load(open(json_file, 'r'))
