@@ -8,12 +8,12 @@ import cv2
 
 # categories_dict = {'破损': 1, '凹陷': 1, '衣物': 2, '鞋': 2, '垃圾满冒': 3, '乱扔垃圾': 4, '垃圾正常盛放': 5}
 # real_ctgry_dict = {1: 'pavement damage', 2: 'drying along the street', 3: 'trash overflow', 4: 'litter', 5: 'normal trash holding'}
-categories_dict = {'打包垃圾': 1, '沿街晾晒': 2, '井盖': 3, '垃圾桶': 4}
-real_ctgry_dict = {1: 'trash', 2: 'drying along the street', 3: 'manhole conver', 4: 'trash can'}
+categories_dict = {'打包垃圾': 1, '沿街晾晒': 2, '垃圾桶': 3, '晾晒': 2, '井盖': 4}
+real_ctgry_dict = {1: 'trash', 2: 'drying along the street', 3: 'trash can', 4: 'manhole cover'}
 # real_ctgry_dict = {1: 'broken located on the sidewalk', 2: 'clothes drying on the street', 3: 'trash overflowing out of the garbage cans', 4: 'the garbage that gets thrown around', 5: 'garbage normally placed in garbage cans'}
 
-data_root = '/home/lixiang/下载/数据标注-兼职/模型训练/标注'
-result_root = '/home/lixiang/下载/数据标注-兼职/模型训练/data/'
+data_root = '/home/lixiang/下载/模型训练/标注'
+result_root = '/home/lixiang/下载/模型训练/data/'
 img_dir = data_root
 anno_dir = data_root
 
@@ -54,7 +54,7 @@ for val_anno in val_annos:
     shutil.copyfile(os.path.join(anno_dir, val_anno), os.path.join(anno_val_dir, val_anno))
 
 
-def convert_to_coco(img_id_dict, label_file, img):
+def convert_to_coco(img_id, label_file, img):
     with open(label_file, 'r') as f:
         label_json = json.load(f)
     annotations = []
@@ -63,8 +63,9 @@ def convert_to_coco(img_id_dict, label_file, img):
         height = abs(round(shape['points'][1][1], 0) - round(shape['points'][0][1], 0))
         if shape['label'] not in categories_dict:
             continue
-        x = round(max(0, shape['points'][0][0]), 0)
-        y = round(max(0, shape['points'][0][1]), 0)
+        # 获取左上角
+        x = round(max(0, min(shape['points'][0][0], shape['points'][1][0])), 0)
+        y = round(max(0, min(shape['points'][0][1], shape['points'][1][1])), 0)
         anno = {
             'iscrowd': 0,
             'category_id': categories_dict[shape['label']],
@@ -76,7 +77,7 @@ def convert_to_coco(img_id_dict, label_file, img):
                      min(height, img.height - y)],
             'area': width * height,
             'segmentation': [[]],
-            'image_id': img_id_dict[label_file.split('/')[-1].split('.')[0]]
+            'image_id': img_id
         }
         annotations.append(anno)
     return annotations
@@ -97,10 +98,20 @@ def convert_anno_file(image_files_dir, anno_files_dir, output):
     image_names = sorted(os.listdir(image_files_dir))
     image_id = 0
     img_id_dict = {}
-    img_dict = {}
-    for img_name in image_names:
+    anno_names = sorted(os.listdir(anno_files_dir))
+    annotations = []
+    for anno_xml, img_name in zip(anno_names, image_names):
+        xml_path = os.path.join(anno_files_dir, anno_xml)
         img_path = os.path.join(image_files_dir, img_name)
         img = Image.open(img_path)
+        coco_anno = convert_to_coco(image_id, xml_path, img)
+
+        if len(coco_anno) == 0:
+            os.remove(os.path.join(anno_files_dir, anno_xml))
+            os.remove(os.path.join(image_files_dir, f'{anno_xml.split(".")[0]}.jpg'))
+            continue
+        annotations += coco_anno
+
         image = {
             'height': img.height,
             'width': img.width,
@@ -109,21 +120,11 @@ def convert_anno_file(image_files_dir, anno_files_dir, output):
         }
         images.append(image)
         img_id_dict[img_name.split('.')[0]] = image_id
-        img_dict[img_name.split('.')[0]] = img
         image_id += 1
     categories = []
     for ctgry_id, name in real_ctgry_dict.items():
         categories.append({'id': ctgry_id, 'name': name})
-    anno_names = sorted(os.listdir(anno_files_dir))
-    annotations = []
-    for anno_xml in anno_names:
-        xml_path = os.path.join(anno_files_dir, anno_xml)
-        coco_anno = convert_to_coco(img_id_dict, xml_path, img_dict[anno_xml.split(".")[0]])
-        if len(coco_anno) == 0:
-            os.remove(os.path.join(anno_files_dir, anno_xml))
-            os.remove(os.path.join(image_files_dir, f'{anno_xml.split(".")[0]}.jpg'))
 
-        annotations += coco_anno
     for idx, annotation in enumerate(annotations):
         annotation['id'] = idx
 

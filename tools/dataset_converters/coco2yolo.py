@@ -9,7 +9,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 split = 'val'
-data_path = '/home/lixiang/下载/数据标注-兼职/模型训练/data'
+data_path = '/home/lixiang/下载/模型训练/data'
 #这里根据自己的json文件位置，换成自己的就行
 parser.add_argument('--json_path', default=f'{data_path}/annotations/annotations_{split}.json',type=str, help="input: coco format(json)")
 #这里设置.txt文件保存位置
